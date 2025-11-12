@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <style>
+        /* ==================== GAYA UMUM ==================== */
+        body {
+            background-color: #03045E;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            color: #B8FB3C; /* Warna teks utama menjadi hijau neon */
+        }
+        h1 {
+            color: #B8FB3C;
+        }
+        p {
+            color: #B8FB3C;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            /* Styling untuk tombol kembali agar selaras dengan tema */
+            background-color: #03045E;
+            border: 2px solid #B8FB3C;
+            border-radius: 5px;
+            color: #B8FB3C;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #B8FB3C;
+            color: #03045E;
+        }
+
+        /* ==================== GAYA TOMBOL DAN DROPDOWN KUSTOM ===================== */
+        .shape-tombol-aksi {
+            background-color: #03045E;
+            border: 2px solid #B8FB3C;
+            border-radius: 5px;
+            color: #B8FB3C;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 5px; /* Tambahkan sedikit margin */
+        }
+
+        .shape-tombol-aksi:hover, .shape-tombol-aksi.selected {
+            background-color: #B8FB3C;
+            color: #03045E;
+            box-shadow: 0 0 10px #B8FB3C;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #05143a; /* Warna latar belakang gelap */
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+            z-index: 10;
+            border: 1px solid #B8FB3C; /* Border hijau neon */
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .dropdown-content a {
+            color: #B8FB3C;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            white-space: nowrap;
+            text-align: left;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #0077b6; /* Latar belakang biru saat hover */
+            color: white;
+        }
+
+        .dropdown.open .dropdown-content { /* Gunakan class 'open' yang akan di-toggle di JS */
+            display: block;
+        }
+        
+        /* GAYA UNTUK INPUT TANGGAL */
+        #controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 2px solid #B8FB3C;
+            border-radius: 8px;
+            background-color: #05143a;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #controls label {
+            color: #B8FB3C;
+            font-weight: bold;
+            margin-left: 15px;
+            margin-right: 5px;
+        }
+
+        #controls input[type="date"] {
+            padding: 8px;
+            margin-right: 5px;
+            background-color: #03045E;
+            border: 2px solid #B8FB3C;
+            border-radius: 5px;
+            color: #B8FB3C;
+            font-size: 16px;
+        }
+
+        /* GAYA UNTUK LOADER */
+        #loader {
+            color: #B8FB3C;
+            margin-left: 10px;
+            display: none; /* Default tersembunyi */
+        }
+
+        /* ==================== GAYA TABEL DATA ==================== */
+        #table-container {
+            margin-top: 20px;
+            font-family: sans-serif;
+            overflow-x: auto;
+        }
+
+        #table-container table {
+            width: 100%;
+            min-width: 800px;
+            border-collapse: collapse;
+            color: #B8FB3C;
+            background-color: #03045E;
+            border: 2px solid #B8FB3C;
+        }
+
+        #table-container th, #table-container td {
+            border: 1px solid #B8FB3C;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        #table-container th {
+            background-color: #03045E; /* Warna header sama dengan background */
+            color: #B8FB3C;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        #table-container tr:nth-child(even) {
+            background-color: #05143a;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="back-button" onclick="window.top.location.href = '<?= getScriptURL() ?>'">
+        &larr; Kembali ke Beranda
+    </button>
+
+    <h1>Tabel Data Monitoring Transmitter TVRI Sulawesi Tengah 📊</h1>
+    <p>Gunakan filter di bawah untuk menampilkan data terperinci.</p>
+
+    <div id="controls">
+        <div class="dropdown" id="locationDropdownContainer">
+            <button class="shape-tombol-aksi" id="locationButton">Lokasi Transmisi</button>
+            <div id="locationList" class="dropdown-content">
+                <a href="#">Memuat Lokasi...</a>
+            </div>
+        </div>
+
+        <div class="dropdown" id="employeeDropdownContainer">
+            <button class="shape-tombol-aksi" id="employeeButton">Nama Pegawai</button>
+            <div id="employeeList" class="dropdown-content">
+                <a href="#">Pilih Lokasi Dulu</a>
+            </div>
+        </div>
+
+        <label for="startDate">Tanggal Mulai:</label>
+        <input type="date" id="startDate" name="startDate">
+
+        <label for="endDate">Tanggal Akhir:</label>
+        <input type="date" id="endDate" name="endDate">
+
+        <button class="shape-tombol-aksi" onclick="filterData()">Filter Data</button>
+        <span id="loader">Memuat...</span>
+    </div>
+
+    <div id="table-container">
+        <p>Masukkan semua kriteria filter dan klik **Filter Data**.</p>
+    </div>
+
+    <script>
+        // Variabel untuk menyimpan nilai yang dipilih
+        let selectedLocation = "ALL";
+        let selectedEmployee = "ALL";
+        
+        // ===============================================
+        // Fungsi untuk mengaktifkan/menonaktifkan dropdown custom
+        // ===============================================
+        function toggleDropdown(id) {
+            const container = document.getElementById(id);
+            const isOpen = container.classList.contains('open');
+
+            // Tutup semua dropdown lain
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                if (dropdown.id !== id) {
+                    dropdown.classList.remove('open');
+                }
+            });
+
+            // Toggle dropdown yang diklik
+            if (isOpen) {
+                container.classList.remove('open');
+            } else {
+                container.classList.add('open');
+            }
+        }
+        
+        // Tambahkan event listener untuk tombol dropdown
+        document.getElementById('locationButton').addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleDropdown('locationDropdownContainer');
+        });
+
+        document.getElementById('employeeButton').addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleDropdown('employeeDropdownContainer');
+        });
+
+        // Tutup dropdown saat klik di luar area
+        document.addEventListener('click', (event) => {
+            const dropdowns = document.querySelectorAll('.dropdown');
+            let isClickInside = false;
+            dropdowns.forEach(dropdown => {
+                if (dropdown.contains(event.target)) {
+                    isClickInside = true;
+                }
+            });
+            if (!isClickInside) {
+                dropdowns.forEach(dropdown => dropdown.classList.remove('open'));
+            }
+        });
+
+
+        // ===============================================
+        // FUNGSI DROPDOWN BERANTAI (CHAINED DROPDOWN)
+        // ===============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLocations();
+        });
+
+        function loadLocations() {
+            google.script.run
+                .withSuccessHandler(populateLocations)
+                .withFailureHandler(onFilterFailure)
+                .getUniqueLocations();
+        }
+
+        function populateLocations(locations) {
+            const dropdownContent = document.getElementById('locationList');
+            dropdownContent.innerHTML = '';
+            
+            locations.unshift("Semua Lokasi"); // Opsi default
+
+            locations.forEach(loc => {
+                const value = (loc === "Semua Lokasi") ? "ALL" : loc;
+                const a = document.createElement('a');
+                a.textContent = loc;
+                a.href = "#";
+                a.dataset.value = value;
+                
+                a.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    selectedLocation = event.target.dataset.value;
+                    selectedEmployee = "ALL"; // Reset pegawai
+                    
+                    document.getElementById('locationButton').textContent = event.target.textContent;
+                    document.getElementById('locationButton').classList.add('selected');
+                    document.getElementById('employeeButton').textContent = "Semua Pegawai"; // Teks default
+                    document.getElementById('employeeButton').classList.add('selected');
+
+                    toggleDropdown('locationDropdownContainer'); // Tutup dropdown
+                    
+                    loadEmployees();
+                });
+                
+                dropdownContent.appendChild(a);
+            });
+            
+            // Set state awal
+            document.getElementById('locationButton').textContent = "Semua Lokasi";
+            document.getElementById('locationButton').classList.add('selected');
+            loadEmployees();
+        }
+
+        function loadEmployees() {
+            const location = selectedLocation;
+            const employeeList = document.getElementById('employeeList');
+            
+            employeeList.innerHTML = '<a href="#">Memuat Pegawai...</a>';
+            document.getElementById('employeeButton').textContent = "Memuat Pegawai...";
+            document.getElementById('employeeButton').classList.remove('selected');
+
+            if (location === "ALL") {
+                // Jika lokasi ALL, tampilkan semua pegawai (dengan filter null di server)
+                google.script.run
+                    .withSuccessHandler(populateEmployees)
+                    .withFailureHandler(onFilterFailure)
+                    .getEmployeesByLocation(null); // Kirim null untuk semua lokasi
+                return;
+            }
+
+            // Panggil fungsi server untuk mendapatkan pegawai berdasarkan lokasi yang dipilih
+            google.script.run
+                .withSuccessHandler(populateEmployees)
+                .withFailureHandler(onFilterFailure)
+                .getEmployeesByLocation(location);
+        }
+
+        function populateEmployees(employees) {
+            const select = document.getElementById('employeeList');
+            select.innerHTML = '';
+            
+            employees.unshift("Semua Pegawai"); // Opsi default ALL
+            
+            employees.forEach(emp => {
+                const value = (emp === "Semua Pegawai") ? "ALL" : emp;
+                const a = document.createElement('a');
+                a.textContent = emp;
+                a.href = "#";
+                a.dataset.value = value;
+                
+                a.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    selectedEmployee = event.target.dataset.value;
+                    document.getElementById('employeeButton').textContent = event.target.textContent;
+                    document.getElementById('employeeButton').classList.add('selected');
+                    toggleDropdown('employeeDropdownContainer'); // Tutup dropdown
+                });
+                
+                select.appendChild(a);
+            });
+            
+            document.getElementById('employeeButton').textContent = "Semua Pegawai";
+            document.getElementById('employeeButton').classList.add('selected');
+            selectedEmployee = "ALL"; // Pastikan variabel global disetel
+        }
+
+        // ===============================================
+        // FUNGSI FILTER DATA UTAMA
+        // ===============================================
+        function filterData() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            // Nilai filter diambil dari variabel global
+            const locationFilter = selectedLocation;
+            const employeeFilter = selectedEmployee;
+            
+            const loader = document.getElementById('loader');
+            const button = document.querySelector('#controls button:last-of-type');
+            const container = document.getElementById('table-container');
+
+            if (!startDate || !endDate) {
+                container.innerHTML = '<p style="color: red;">⚠️ Mohon lengkapi **Tanggal Mulai** dan **Tanggal Akhir** sebelum filter.</p>';
+                return;
+            }
+            
+            // Logika ALL/Semua Lokasi dan Pegawai tidak perlu dicek di sini karena defaultnya ALL
+            // (Asumsi: 'ALL' ditangani sebagai filter *optional* atau *semua* di server-side Code.gs)
+
+            // Tampilkan loader dan nonaktifkan tombol
+            loader.style.display = 'inline';
+            button.disabled = true;
+            container.innerHTML = '<p>Memuat data...</p>';
+
+            // Panggil fungsi server yang telah dimodifikasi (getFilteredData)
+            google.script.run
+                .withSuccessHandler(displayFilteredData)
+                .withFailureHandler(onFilterFailure)
+                .getFilteredData(startDate, endDate, locationFilter, employeeFilter);
+        }
+
+        function displayFilteredData(data) {
+            const container = document.getElementById('table-container');
+            const loader = document.getElementById('loader');
+            const button = document.querySelector('#controls button:last-of-type');
+
+            loader.style.display = 'none';
+            button.disabled = false;
+
+            if (data.length <= 1) { 
+                container.innerHTML = '<p>❌ Tidak ada data yang ditemukan berdasarkan kriteria filter yang dipilih.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr>';
+
+            // Header (baris pertama)
+            data[0].forEach(header => {
+                html += `<th>${header}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            // Baris data
+            for (let i = 1; i < data.length; i++) {
+                html += '<tr>';
+                data[i].forEach(cell => {
+                    // Konversi nilai boolean (true/false) menjadi emoji/teks visual
+                    let displayCell = cell;
+                    if (cell === true) {
+                        displayCell = '✅'; // Tanda centang
+                    } else if (cell === false) {
+                        displayCell = '❌'; // Tanda silang
+                    }
+                    html += `<td>${displayCell}</td>`;
+                });
+                html += '</tr>';
+            }
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function onFilterFailure(error) {
+            const container = document.getElementById('table-container');
+            const loader = document.getElementById('loader');
+            const button = document.querySelector('#controls button:last-of-type');
+            
+            loader.style.display = 'none';
+            button.disabled = false;
+            container.innerHTML = `<p style="color: red;">Terjadi kesalahan saat memproses filter: ${error.message}</p>`;
+        }
+    </script>
+</body>
+</html>

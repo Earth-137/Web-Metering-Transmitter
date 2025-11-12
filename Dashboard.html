@@ -3,17 +3,167 @@
 <head> 
   <base target="_top">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-    }
-    .back-button {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-    }
-  </style>
+            /* ==================== GAYA UMUM ==================== */
+            body {
+                background-color: #03045E;
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding: 50px;
+                color: #B8FB3C; /* Warna teks utama menjadi hijau neon */
+            }
+            h1 {
+                color: #B8FB3C;
+            }
+            p {
+                color: #B8FB3C;
+            }
+            .back-button {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                /* Styling untuk tombol kembali agar selaras dengan tema */
+                background-color: #03045E;
+                border: 2px solid #B8FB3C;
+                border-radius: 5px;
+                color: #B8FB3C;
+                padding: 8px 15px;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            .back-button:hover {
+                background-color: #B8FB3C;
+                color: #03045E;
+            }
+
+            /* ==================== GAYA TOMBOL DAN DROPDOWN KUSTOM ===================== */
+            .shape-tombol-aksi {
+                background-color: #03045E;
+                border: 2px solid #B8FB3C;
+                border-radius: 5px;
+                color: #B8FB3C;
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+                display: inline-block;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                margin: 5px; /* Tambahkan sedikit margin */
+            }
+
+            .shape-tombol-aksi:hover, .shape-tombol-aksi.selected {
+                background-color: #B8FB3C;
+                color: #03045E;
+                box-shadow: 0 0 10px #B8FB3C;
+            }
+
+            .dropdown {
+                position: relative;
+                display: inline-block;
+                margin-right: 10px;
+            }
+
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                background-color: #05143a; /* Warna latar belakang gelap */
+    D           min-width: 200px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+                z-index: 10;
+                border: 1px solid #B8FB3C; /* Border hijau neon */
+                max-height: 300px;
+                overflow-y: auto;
+            }
+
+            .dropdown-content a {
+                color: #B8FB3C;
+                padding: 12px 16px;
+                text-decoration: none;
+                display: block;
+                white-space: nowrap;
+                text-align: left;
+            }
+
+            .dropdown-content a:hover {
+                background-color: #0077b6; /* Latar belakang biru saat hover */
+                color: white;
+            }
+
+            .dropdown.open .dropdown-content { /* Gunakan class 'open' yang akan di-toggle di JS */
+                display: block;
+            }
+            
+            /* GAYA UNTUK INPUT TANGGAL */
+            #controls {
+                margin-bottom: 20px;
+                padding: 15px;
+                border: 2px solid #B8FB3C;
+    V           border-radius: 8px;
+                background-color: #05143a;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #controls label {
+                color: #B8FB3C;
+                font-weight: bold;
+                margin-left: 15px;
+                margin-right: 5px;
+            }
+
+            #controls input[type="date"] {
+                padding: 8px;
+                margin-right: 5px;
+                background-color: #03045E;
+                border: 2px solid #B8FB3C;
+                border-radius: 5px;
+                color: #B8FB3C;
+    M           font-size: 16px;
+            }
+
+            /* GAYA UNTUK LOADER */
+            #loader {
+                color: #B8FB3C;
+                margin-left: 10px;
+                display: none; /* Default tersembunyi */
+            }
+
+            /* ==================== GAYA TABEL DATA ==================== */
+            #table-container {
+                margin-top: 20px;
+                font-family: sans-serif;
+              _ overflow-x: auto;
+            }
+
+            #table-container table {
+                width: 100%;
+                min-width: 800px;
+      s         border-collapse: collapse;
+                color: #B8FB3C;
+                background-color: #03045E;
+                border: 2px solid #B8FB3C;
+            }
+
+            #table-container th, #table-container td {
+                border: 1px solid #B8FB3C;
+                padding: 8px 12px;
+                text-align: left;
+            }
+
+            #table-container th {
+                background-color: #03045E; /* Warna header sama dengan background */
+                color: #B8FB3C;
+                font-weight: bold;
+                text-transform: uppercase;
+                font-size: 14px;
+            }
+
+            #table-container tr:nth-child(even) {
+                background-color: #05143a;
+            }
+        </style>
 </head>
 <body>
   <button class="back-button" onclick="window.top.location.href = '<?= getScriptURL() ?>'">

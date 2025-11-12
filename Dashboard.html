@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head> 
+  <base target="_top">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    .back-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <button class="back-button" onclick="window.top.location.href = '<?= getScriptURL() ?>'">
+    &larr; Kembali ke Beranda
+  </button>
+  
+  <h1>Halaman Dashboard 📈</h1>
+  <p>Di sinilah konten visual dan ringkasan data akan ditampilkan.</p>
+  </body>
+</html>

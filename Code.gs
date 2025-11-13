@@ -62,6 +62,8 @@ const SHEET_NAME = 'Data Mentah';
 const DATE_COL_INDEX = 0;      // Kolom A: Tanggal
 const EMPLOYEE_COL_INDEX = 1;  // Kolom B: Nama Pegawai
 const LOCATION_COL_INDEX = 2;  // Kolom C: Lokasi Transmisi
+const FORWARD_POWER_COL_INDEX = 3;  // Kolom D: Forward Power
+const REFLECTED_POWER_COL_INDEX = 4; // Kolom E: Reflected Power
 
 /**
  * Fungsi utama yang dijalankan saat Web App diakses.
@@ -257,4 +259,42 @@ function getDataFromSheet() {
     Logger.log('Error saat mengambil data: ' + e.toString());
     return [['Error', e.toString()]]; 
   }
+
+/**
+ * Mengambil dan memfilter data serta memformatnya untuk kebutuhan charting.
+ * Hanya mengembalikan Tanggal, Forward Power, dan Reflected Power.
+ * Digunakan untuk menggambar Line Chart.
+ */
+function getPowerChartData(startDateString, endDateString, locationFilter, employeeFilter) {
+  try {
+    // Memanggil fungsi filter yang sudah ada untuk mendapatkan data
+    const fullData = getFilteredData(startDateString, endDateString, locationFilter, employeeFilter);
+
+    // fullData[0] adalah header, fullData.slice(1) adalah baris data
+    if (fullData.length <= 1) return []; 
+
+    // Transformasi data untuk chart: [{Date: String "dd/MM/yyyy", ForwardPower: Number, ReflectedPower: Number}]
+    const chartData = fullData.slice(1).map(row => {
+      // Pastikan data power adalah angka, dan filter baris yang tidak valid
+      const fp = parseFloat(row[FORWARD_POWER_COL_INDEX]);
+      const rp = parseFloat(row[REFLECTED_POWER_COL_INDEX]);
+      
+      // Menggunakan row[DATE_COL_INDEX] yang sudah diformat "dd/MM/yyyy" dari getFilteredData [cite: 50]
+      if (!isNaN(fp) && !isNaN(rp)) {
+        return {
+          Date: row[DATE_COL_INDEX],
+          ForwardPower: fp,
+          ReflectedPower: rp
+        };
+      }
+      return null;
+    }).filter(row => row !== null); // Hapus baris yang mengandung data power tidak valid
+    
+    return chartData;
+  } catch (e) {
+    Logger.log('Error getPowerChartData: ' + e.toString());
+    return [];
+  }
+}
+
 }

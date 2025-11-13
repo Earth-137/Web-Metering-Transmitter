@@ -163,6 +163,14 @@
             #table-container tr:nth-child(even) {
                 background-color: #05143a;
             }
+            /* Style untuk kontainer chart */
+            .chart-container {
+              width: 80%;
+              margin: 20px auto;
+              border: 1px solid #ccc;
+              padding: 10px;
+              box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            }
         </style>
 </head>
 <body>
@@ -172,5 +180,115 @@
   
   <h1>Halaman Dashboard 📈</h1>
   <p>Di sinilah konten visual dan ringkasan data akan ditampilkan.</p>
+  <div id="forwardPowerChart" class="chart-container"></div>
+  <div id="reflectedPowerChart" class="chart-container"></div>
+  <script>
+      // Fungsi untuk mengubah string "dd/MM/yyyy" menjadi objek Date
+      function parseDateString(dateString) {
+        if (!dateString) return null;
+        const parts = dateString.split('/'); // dd/MM/yyyy
+        // Perhatikan bahwa bulan di JavaScript adalah 0-indexed (Januari=0, Desember=11)
+        return new Date(parts[2], parts[1] - 1, parts[0]); // year, month (0-indexed), day
+      }
+  
+      // Fungsi untuk mendapatkan data dan menggambar chart
+      function fetchAndDrawCharts() {
+        // --- Placeholder Filter (Ganti dengan input dari pengguna jika ada) ---
+        const today = new Date();
+        const lastWeek = new Date(today);
+        lastWeek.setDate(today.getDate() - 7);
+        
+        // Format YYYY-MM-DD
+        const formatDate = (date) => date.toISOString().split('T')[0];
+  
+        // Menggunakan rentang tanggal 7 hari terakhir sebagai default
+        const startDate = formatDate(lastWeek);
+        const endDate = formatDate(today);
+        const locationFilter = "ALL";
+        const employeeFilter = "ALL";
+        // --------------------------------------------------------------------
+  
+        // Panggil fungsi Apps Script untuk mendapatkan data chart
+        google.script.run
+          .withSuccessHandler(drawCharts)
+          .withFailureHandler(onFailure)
+          .getPowerChartData(startDate, endDate, locationFilter, employeeFilter);
+      }
+  
+      function onFailure(error) {
+        console.error("Gagal mengambil data chart: " + error);
+        document.getElementById('forwardPowerChart').innerHTML = 'Gagal memuat data Forward Power: ' + error;
+        document.getElementById('reflectedPowerChart').innerHTML = 'Gagal memuat data Reflected Power: ' + error;
+      }
+  
+      // Fungsi untuk menggambar kedua chart
+      function drawCharts(chartData) {
+        if (!chartData || chartData.length === 0) {
+          document.getElementById('forwardPowerChart').innerHTML = 'Tidak ada data Forward Power untuk ditampilkan.';
+          document.getElementById('reflectedPowerChart').innerHTML = 'Tidak ada data Reflected Power untuk ditampilkan.';
+          return;
+        }
+        
+        // Load Google Visualization API
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(() => {
+          
+          // 1. Siapkan data untuk Google Charts
+          const dataTable = new google.visualization.DataTable();
+          dataTable.addColumn('date', 'Tanggal');
+          dataTable.addColumn('number', 'Forward Power');
+          dataTable.addColumn('number', 'Reflected Power');
+  
+          chartData.forEach(row => {
+            const date = parseDateString(row.Date);
+            if (date) {
+              dataTable.addRow([date, row.ForwardPower, row.ReflectedPower]);
+            }
+          });
+  
+          // 2. Gambar Chart 1: Forward Power
+          const forwardPowerData = new google.visualization.DataView(dataTable);
+          forwardPowerData.setColumns([
+            0, // Tanggal (Date)
+            1  // Forward Power (Number)
+          ]);
+  
+          const forwardPowerOptions = {
+            title: 'Line Chart: Forward Power (vs. Tanggal)',
+            curveType: 'function',
+            legend: { position: 'bottom' },
+            hAxis: { title: 'Tanggal', format: 'dd MMM' },
+            vAxis: { title: 'Forward Power' },
+            series: { 0: { color: '#4285F4' } } // Warna biru Google
+          };
+  
+          const forwardPowerChart = new google.visualization.LineChart(document.getElementById('forwardPowerChart'));
+          forwardPowerChart.draw(forwardPowerData, forwardPowerOptions);
+  
+          // 3. Gambar Chart 2: Reflected Power
+          const reflectedPowerData = new google.visualization.DataView(dataTable);
+          reflectedPowerData.setColumns([
+            0, // Tanggal (Date)
+            2  // Reflected Power (Number)
+          ]);
+  
+          const reflectedPowerOptions = {
+            title: 'Line Chart: Reflected Power (vs. Tanggal)',
+            curveType: 'function',
+            legend: { position: 'bottom' },
+            hAxis: { title: 'Tanggal', format: 'dd MMM' },
+            vAxis: { title: 'Reflected Power' },
+            series: { 0: { color: '#DB4437' } } // Warna merah Google
+          };
+  
+          const reflectedPowerChart = new google.visualization.LineChart(document.getElementById('reflectedPowerChart'));
+          reflectedPowerChart.draw(reflectedPowerData, reflectedPowerOptions);
+        });
+      }
+  
+      // Panggil fungsi saat halaman selesai dimuat
+      google.charts.setOnLoadCallback(fetchAndDrawCharts);
+    
+    </script>
   </body>
 </html>
